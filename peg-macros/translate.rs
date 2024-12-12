@@ -214,6 +214,14 @@ fn rule_params_list(context: &Context, rule: &Rule) -> Vec<TokenStream> {
 fn compile_rule(context: &Context, rule: &Rule) -> TokenStream {
     let span = rule.span.resolved_at(Span::mixed_site());
     let name = format_ident!("__parse_{}", rule.name, span = span);
+    // CHW: This makes the internal rule public so I can get it from
+    // an another parser. Might be better done as a inheritted parser
+    let visibility = if cfg!(feature = "external") {
+        rule.visibility.as_ref()
+    } else {
+        // CHW: Is this the right thing? Test it
+        None
+    };
     let ret_ty = rule.ret_type.clone().unwrap_or_else(|| quote!(()));
     let ty_params = ty_params_slice(&rule.ty_params);
     let where_clause = rule.where_clause.as_ref().into_iter();
@@ -321,7 +329,7 @@ fn compile_rule(context: &Context, rule: &Rule) -> TokenStream {
     };
 
     quote_spanned! { span =>
-        fn #name<'input #(, #grammar_lifetime_params)* #(, #ty_params)*>(
+        #visibility fn #name<'input #(, #grammar_lifetime_params)* #(, #ty_params)*>(
             __input: #input_ty,
             __state: #parse_state_ty,
             __err_state: &mut ::peg::error::ErrorState,
@@ -624,6 +632,24 @@ fn compile_expr(context: &Context, e: &SpannedExpr, result_used: bool) -> TokenS
 
         MethodExpr(ref method, ref args) => {
             quote_spanned! { span=> __input.#method(__pos, #args) }
+        }
+        // CHW: Test this
+        //   #[cfg(feature = "external")]
+        ExternalExpr(ref method, ref args) => {
+            // if feature "external" then emit ExternalExpr otherwise error
+//            if cfg!(feature = "external") {
+                // CHW: The external function, which is public, has a different
+                // return than the internal function. Need to make something to
+                // convert
+                let name = format_ident!("__parse_{}", method, span = span);
+                // CHW: more arguments for this call
+                quote_spanned! { span=> #name(__input,__state, __err_state, __pos, #args) }
+            // } else {
+            //     report_error_expr(
+            //         span,
+            //         "external function calls are not allowed in this context".to_string(),
+            //     )
+            // }
         }
 
         ChoiceExpr(ref exprs) => ordered_choice(

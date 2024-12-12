@@ -14,6 +14,7 @@ peg-runtime = { version = "= 0.8.3", path = "../peg-runtime" }
 
 [features]
 trace = []
+external = []
 
 [lib]
 proc-macro = true

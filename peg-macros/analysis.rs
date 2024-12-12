@@ -163,6 +163,12 @@ impl<'a> LeftRecursionVisitor<'a> {
 
                nullable
             }
+// CHW:            #[cfg(feature = "external")]
+            ExternalExpr(_,_) => {
+                // We don't know what the external rule does, so we conservatively
+                // assume it can consume input.
+                false
+            }
 
             LiteralExpr(_) | PatternExpr(_) | MethodExpr(_, _) | FailExpr(_) | MarkerExpr(_) => false,
 
@@ -273,6 +279,10 @@ impl<'a> LoopNullabilityVisitor<'a> {
             }
 
             LiteralExpr(_) | PatternExpr(_) | MethodExpr(_, _) | FailExpr(_) | MarkerExpr(_) => false,
+            // CHW: #[cfg(feature = "external")]
+            ExternalExpr(_,_) => {
+                false
+            }
             PositionExpr => true,
         }
     }
