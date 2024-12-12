@@ -1,8 +1,8 @@
 # Parsing Expression Grammars in Rust
 
-*Fork of rust-peg to experiment with external rules and/or inherited grammars*
+*Fork of rust-peg to experiment with external rules and/or inherited grammars. See [External Rules](External.md)*
 
-[Documentation](https://docs.rs/peg) | [Release Notes](https://github.com/kevinmehall/rust-peg/releases)
+[Documentation](https://docs.rs/peg) | [Release Notes](https://github.com/kevinmehall/rust-peg/releases) 
 
 `rust-peg` is a simple yet flexible parser generator that makes it easy to write robust parsers. Based on the [Parsing Expression Grammar](https://en.wikipedia.org/wiki/Parsing_expression_grammar) formalism, it provides a Rust macro that builds a recursive descent parser from a concise definition of the grammar.
 
